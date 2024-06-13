@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Worksheet Generator</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Worksheet Generator</h1>
+        <div class="content">
+            <div class="form-container">
+                <div class="form-group">
+                    <label for="grade">Select Grade:</label>
+                    <select id="grade" class="dropdown">
+                        <option value="grade_1">Grade 1</option>
+                        <option value="grade_2">Grade 2</option>
+                        <option value="grade_3">Grade 3</option>
+                        <option value="grade_4">Grade 4</option>
+                        <!-- Add more grades as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="topic">Select Topic:</label>
+                    <select id="topic" class="dropdown">
+                        <option value="number_charts">Number Charts & Counting</option>
+                        <option value="number_patterns">Number Patterns</option>
+                        <option value="comparing_numbers">Comparing Numbers</option>
+                        <option value="Base_10_Blocks">Base 10 Blocks</option>
+                        <option value="Place_Value">Place Value</option>
+                        <option value="Addition">Addition</option>
+                        <option value="Subtraction">Subtraction</option>
+                        <option value="Fractions">Fractions</option>
+                        <option value="Measurement">Measurement</option>
+                        <option value="Counting_Money">Counting Money</option>
+                        <option value="Telling_Time">Telling Time</option>
+                        <option value="Geometry">Geometry</option>
+                        <option value="Data_&_Graphing">Data & Graphing</option>
+                        <option value="Word_Problems">Word Problems</option>
+                        <!-- Add more topics as needed -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="subtopic">Select Subtopic:</label>
+                    <select id="subtopic" class="dropdown">
+                        <option value="printing_numbers_1_25">Printing Numbers 1-25</option>
+                        <option value="printing_numbers_26_50">Printing Numbers 26-50</option>
+                        <option value="printing_numbers_51_75">Printing Numbers 51-75</option>
+                        <option value="printing_numbers_76_100">Printing Numbers 76-100</option>
+                        <option value="Write_number_words_1_50">Write number words 1-50</option>
+                        <option value="Write_number_words_51_100">Write number words 51-100</option>
+                        <option value="Match_numbers_with_their_words">Match numbers with their words</option>
+                        <option value="Ordinal_numbers">Ordinal numbers</option>
+                        <option value="Counting_in_Sequence_1_10">Counting in Sequence (1-10)</option>
+                        <option value="Circle_Number_Objects_1_10_1_20">Circle a Number of Objects (1-10, 1-20)</option>
+                        <option value="Counting_writing_numbers_1_10">Counting and writing numbers (1-10)</option>
+                        <option value="Count_objects_write_number_1_20">Count objects and write the number (1-20)</option>
+                        <option value="Count_combine">Count and combine</option>
+                        <option value="Counting_questions">Counting&questions</option>
+                        <option value="counting_1_20s">Counting 1-20</option>
+                        <option value="counting_1_30s">Counting 1-30</option>
+                        <option value="counting_1_50s">Counting 1-50</option>
+                        <option value="Counting_practice_before_after">Counting practice: "before" and "after"</option>
+                        <option value="Counting_2">Counting 2's</option>
+                        <option value="Counting_5">Counting 5's</option>
+                        <option value="Counting_10">Counting 10's</option>
+                        <option value="Number_charts_1_100">Number chart from 1 to 100 ( full / empty)</option>
+                        <option value="Number_charts_counting_counting_ones">Number Charts: counting ones</option>
+                        <option value="Number_charts_counting_counting_twos">Number charts: counting twos (even, odd)</option>
+                        <option value="Number_charts_counting_3">Number charts: counting 3's</option>
+                        <option value="Number_charts_counting_4">Number charts: counting 4's</option>
+                        <option value="Number_charts_counting_5">Number charts: counting 5's</option>
+                        <option value="Number_charts_counting_1O">Number charts: counting 1O's</option>
+                        <option value="Count_backwards_100_0">Count backwards from 100 to 0</option>
+                        <option value="Countbackwards_2s">Countbackwards by 2s</option>
+                        <option value="Countbackwards_5s">Countbackwards by 5s</option>
+                        <option value="Even_vs_odd_worksheets">Even vs odd worksheets</option>
+                        <!-- Add more subtopics as needed -->
+                    </select>
+                </div>
+                <div class="button-group">
+                    <button class="button" id="generate-btn">Generate Worksheet</button>
+                    
+                    <button class="button" id="download-btn" disabled>Download Worksheet</button>
+                </div>
+            </div>
+            <div class="worksheet-display">
+                <iframe id="worksheet-frame"></iframe>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('generate-btn').addEventListener('click', async () => {
+            const grade = document.getElementById('grade').value;
+            const topic = document.getElementById('topic').value;
+            const subtopic = document.getElementById('subtopic').value;
+
+            try {
+                const response = await fetch('/get-worksheet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ grade, topic, subtopic }),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+                const worksheetUrl = data.url;
+
+                const iframe = document.getElementById('worksheet-frame');
+                iframe.style.display = 'block';
+                iframe.src = worksheetUrl;
+                document.getElementById('download-btn').disabled = false;
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            const iframe = document.getElementById('worksheet-frame');
+            if (iframe.src) {
+                const a = document.createElement('a');
+                a.href = iframe.src;
+                a.download = 'worksheet.pdf';
+                a.click();
+            }
+        });
+    </script>
+</body>
+</html>
